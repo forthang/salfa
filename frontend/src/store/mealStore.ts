@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { fetchMealsAPI } from '../api/meals';
 
-// Определяем тип для блюда
 export interface Meal {
   id: string;
   title: string;
@@ -10,7 +9,6 @@ export interface Meal {
   liked?: boolean;
 }
 
-// Определяем состояние хранилища
 interface MealState {
   meals: Meal[];
   loading: boolean;

@@ -1,24 +1,28 @@
 import { useEffect } from 'react';
 import { useMealStore } from '../store/mealStore';
+import MealCard from '../components/MealCard';
 
 const MealsListPage = () => {
   const { meals, loading, fetchMeals } = useMealStore();
 
   useEffect(() => {
-    // Загружаем данные при монтировании компонента
-    fetchMeals();
-  }, [fetchMeals]);
+    if (meals.length === 0) {
+      fetchMeals();
+    }
+  }, [fetchMeals, meals.length]);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (loading && meals.length === 0) {
+    return <div className="text-center p-10">Loading...</div>;
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Raw Meal Data</h1>
-      <pre className="bg-gray-100 p-4 rounded-md">
-        {JSON.stringify(meals, null, 2)}
-      </pre>
+      <h1 className="text-3xl font-bold mb-6">Meals</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {meals.map((meal) => (
+          <MealCard key={meal.id} meal={meal} />
+        ))}
+      </div>
     </div>
   );
 };
