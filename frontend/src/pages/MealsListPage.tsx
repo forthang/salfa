@@ -53,7 +53,11 @@ const MealsListPage = () => {
   const currentMealsOnPage = filteredMeals.slice(startIndex, endIndex);
 
   if (loading && meals.length === 0) {
-    return <div className="text-center p-10">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center p-10">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   const FilterButton: React.FC<{
