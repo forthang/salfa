@@ -20,7 +20,7 @@ This is a Single Page Application (SPA) built with React that allows users to br
 
 You can view the live application deployed on GitHub Pages:
 
-[**https://forthang.github.io/salfa/**](https://forthang.github.io/salfa/)
+[**https://forthang.github.io/salfa/**](https://forthang.github.io/salfa/) or [**http://80.249.147.241/products**](http://80.249.147.241/products)
 
 ## Features
 
@@ -58,7 +58,13 @@ To run this project locally, follow these steps:
     npm run dev
     ```
     The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
-
+### Or with docker
+  ```bash
+  git switch develop
+  docker build  -t frontend-salfa .
+  docker run -d -p 80:80 --name salfa-app frontend-salfa
+ ```
+  
 ## Available Scripts
 
 In the `frontend` directory, you can run the following commands:
