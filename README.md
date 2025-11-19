@@ -12,7 +12,7 @@
 
 # Meal Recipe App
 
-<a href="https://ibb.co/twx25b0q"><img src="https://i.ibb.co/WNPz1crk/image.png" alt="image" border="0" /></a>
+<a href="https://ibb.co/twx25b0q"><img src="https://i.ibb.co/WNPz1crk/image.png" alt="image" border="0" height="350" /></a>
 
 This is a Single Page Application (SPA) built with React that allows users to browse, create, and manage a list of meal recipes. It demonstrates a modern frontend stack and includes features like client-side routing, state management, form handling, and persistent storage.
 
