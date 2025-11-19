@@ -1,8 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useMealStore } from '../store/mealStore';
-import type { MealFilter } from '../store/mealStore';
 import MealCard from '../components/MealCard';
+import Spinner from '../components/ui/Spinner';
+import Pagination from '../components/ui/Pagination';
+import FilterControls from '../components/meals/FilterControls';
 
 const MEALS_PER_PAGE = 8;
 
@@ -46,42 +48,20 @@ const MealsListPage = () => {
       });
   }, [meals, filter, searchTerm]);
 
-  // Pagination Logic
   const totalPages = Math.ceil(filteredMeals.length / MEALS_PER_PAGE);
   const startIndex = (currentPage - 1) * MEALS_PER_PAGE;
-  const endIndex = startIndex + MEALS_PER_PAGE;
-  const currentMealsOnPage = filteredMeals.slice(startIndex, endIndex);
+  const currentMealsOnPage = filteredMeals.slice(startIndex, startIndex + MEALS_PER_PAGE);
 
   if (loading && meals.length === 0) {
-    return (
-      <div className="flex justify-center items-center p-10">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <Spinner />;
   }
-
-  const FilterButton: React.FC<{
-    buttonFilter: MealFilter,
-    text: string
-  }> = ({ buttonFilter, text }) => (
-    <button
-      onClick={() => setFilter(buttonFilter)}
-      className={`px-4 py-2 rounded-lg font-semibold ${filter === buttonFilter ? 'bg-gray-200 text-gray-800' : 'bg-white'}`}
-    >
-      {text}
-    </button>
-  );
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Meals</h1>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center p-1 rounded-lg bg-gray-200">
-            <FilterButton buttonFilter="all" text="All" />
-            <FilterButton buttonFilter="liked" text="Liked" />
-            <FilterButton buttonFilter="deleted" text="Deleted" />
-          </div>
+        <div className="flex items-center gap-4">
+          <FilterControls currentFilter={filter} onFilterChange={setFilter} />
           <Link
             to="/create-product"
             className="px-4 py-2 rounded-lg font-semibold bg-blue-500 text-white hover:bg-blue-600"
@@ -93,10 +73,10 @@ const MealsListPage = () => {
       <div className="mb-6">
         <input
           type="text"
-          placeholder="Search meals..."
+          placeholder="Search meals by title or description..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 border rounded-lg"
+          className="w-full p-3 border rounded-lg shadow-sm"
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -111,27 +91,11 @@ const MealsListPage = () => {
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center mt-8 gap-4">
-          <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 rounded-lg font-semibold bg-gray-200 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded-lg font-semibold bg-gray-200 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      )}
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

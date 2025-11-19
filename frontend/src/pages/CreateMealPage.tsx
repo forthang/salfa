@@ -22,7 +22,7 @@ const mealSchema = z.object({
 
 type MealFormData = z.infer<typeof mealSchema>;
 
-const CreateProductPage = () => {
+const CreateMealPage = () => {
   const navigate = useNavigate();
   const addMeal = useMealStore((state) => state.addMeal);
   const {
@@ -52,7 +52,7 @@ const CreateProductPage = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Create New Product</h1>
+      <h1 className="text-3xl font-bold mb-6">Create New Meal</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700">
@@ -96,7 +96,7 @@ const CreateProductPage = () => {
             disabled={isSubmitting}
             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            {isSubmitting ? 'Creating...' : 'Create Product'}
+            {isSubmitting ? 'Creating...' : 'Create Meal'}
           </button>
         </div>
       </form>
@@ -104,4 +104,4 @@ const CreateProductPage = () => {
   );
 };
 
-export default CreateProductPage;
+export default CreateMealPage;
