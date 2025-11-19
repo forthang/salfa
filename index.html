@@ -5,6 +5,26 @@
     <link rel="icon" type="image/svg+xml" href="/salfa/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>frontend</title>
+    <script>
+        (function(){
+            const redirect = sessionStorage.getItem('redirect');
+            if (redirect) {
+                sessionStorage.removeItem('redirect');
+                history.replaceState(null, null, redirect);
+            }
+        })();
+    </script>
+    <script>
+        (function(){
+            if(location.hostname === 'forthang.github.io' && location.pathname.startsWith('/salfa/') && !sessionStorage.getItem('redirect')){
+                const path = location.pathname.substring('/salfa'.length);
+                if(path !== '/' && !path.includes('.')){
+                    sessionStorage.setItem('redirect', '/salfa' + path);
+                    location.replace('/salfa/index.html');
+                }
+            }
+        })();
+    </script>
     <script type="module" crossorigin src="/salfa/assets/index-DtkxUZ4G.js"></script>
     <link rel="stylesheet" crossorigin href="/salfa/assets/index-Dk298zye.css">
   </head>
