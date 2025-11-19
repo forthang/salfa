@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { fetchMealsAPI } from '../api/meals';
 
 export interface Meal {
@@ -7,42 +8,72 @@ export interface Meal {
   description: string;
   thumbnail: string;
   liked?: boolean;
+  deleted?: boolean;
 }
+
+export type MealFilter = 'all' | 'liked' | 'deleted';
 
 interface MealState {
   meals: Meal[];
   loading: boolean;
+  filter: MealFilter;
+  searchTerm: string;
   fetchMeals: () => Promise<void>;
-  deleteMeal: (id: string) => void;
+  toggleDelete: (id: string) => void;
   toggleLike: (id: string) => void;
+  setFilter: (filter: MealFilter) => void;
+  setSearchTerm: (term: string) => void;
 }
 
-export const useMealStore = create<MealState>((set) => ({
-  meals: [],
-  loading: false,
+export const useMealStore = create<MealState>()(
+  persist(
+    (set, get) => ({
+      meals: [],
+      loading: false,
+      filter: 'all',
+      searchTerm: '',
 
-  fetchMeals: async () => {
-    set({ loading: true });
-    try {
-      const meals = await fetchMealsAPI();
-      set({ meals });
-    } catch (error) {
-      console.error("Failed to fetch meals:", error);
-      set({ meals: [] });
-    } finally {
-      set({ loading: false });
+      fetchMeals: async () => {
+        const oldMeals = get().meals;
+        set({ loading: true });
+        try {
+          const mealsFromAPI = await fetchMealsAPI();
+          const mealMap = new Map(oldMeals.map(m => [m.id, { liked: m.liked, deleted: m.deleted }]));
+          
+          const mergedMeals = mealsFromAPI.map(newMeal => ({
+            ...newMeal,
+            liked: mealMap.get(newMeal.id)?.liked || false,
+            deleted: mealMap.get(newMeal.id)?.deleted || false,
+          }));
+
+          set({ meals: mergedMeals });
+        } catch (error) {
+          console.error("Failed to fetch meals:", error);
+        } finally {
+          set({ loading: false });
+        }
+      },
+
+      toggleDelete: (id) =>
+        set((state) => ({
+          meals: state.meals.map((meal) =>
+            meal.id === id ? { ...meal, deleted: !meal.deleted } : meal
+          ),
+        })),
+
+      toggleLike: (id) =>
+        set((state) => ({
+          meals: state.meals.map((meal) =>
+            meal.id === id ? { ...meal, liked: !meal.liked } : meal
+          ),
+        })),
+
+      setFilter: (filter) => set({ filter }),
+      setSearchTerm: (term) => set({ searchTerm: term }),
+    }),
+    {
+      name: 'meal-app-storage',
+      partialize: (state) => ({ meals: state.meals }),
     }
-  },
-
-  deleteMeal: (id) =>
-    set((state) => ({
-      meals: state.meals.filter((meal) => meal.id !== id),
-    })),
-
-  toggleLike: (id) =>
-    set((state) => ({
-      meals: state.meals.map((meal) =>
-        meal.id === id ? { ...meal, liked: !meal.liked } : meal
-      ),
-    })),
-}));
+  )
+);

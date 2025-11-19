@@ -3,16 +3,14 @@ import { Link } from 'react-router-dom';
 import { useMealStore } from '../store/mealStore';
 import type { Meal } from '../store/mealStore';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
-import { HeartIcon as HeartIconOutline, TrashIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartIconOutline, TrashIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconOutline, TrashIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 
 interface MealCardProps {
   meal: Meal;
 }
 
 const MealCard: React.FC<MealCardProps> = ({ meal }) => {
-  const { toggleLike, deleteMeal } = useMealStore();
-  const { toggleLike, deleteMeal } = useMealStore();
+  const { toggleLike, toggleDelete } = useMealStore();
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -20,60 +18,49 @@ const MealCard: React.FC<MealCardProps> = ({ meal }) => {
     toggleLike(meal.id);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
+  const handleDeleteOrRestoreClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    deleteMeal(meal.id);
+    toggleDelete(meal.id);
   };
 
   return (
-    <Link to={`/products/${meal.id}`} className="block hover:shadow-xl transition-shadow duration-300">
+    <Link 
+      to={`/products/${meal.id}`} 
+      className={`block hover:shadow-xl transition-shadow duration-300 ${meal.deleted ? 'opacity-60' : ''}`}
+    >
       <div className="border rounded-lg overflow-hidden shadow-lg h-full relative group">
-        <div className="absolute top-2 right-2 z-10">
-          <button
-            onClick={handleLikeClick}
-            className="bg-white/70 backdrop-blur-sm rounded-full p-1.5 transition-colors hover:bg-white"
-            aria-label="Like"
+        
+        {!meal.deleted && (
+          <div className="absolute top-2 right-2 z-10">
+            <button
+              onClick={handleLikeClick}
+              className="bg-white/70 backdrop-blur-sm rounded-full p-1.5 transition-colors hover:bg-white"
+              aria-label="Like"
+            >
+              {meal.liked ? (
+                <HeartIconSolid className="h-6 w-6 text-red-500" />
+              ) : (
+                <HeartIconOutline className="h-6 w-6 text-red-500" />
+              )}
+            </button>
+          </div>
+        )}
+
+        <div className="absolute top-2 left-2 z-10">
+           <button
+            onClick={handleDeleteOrRestoreClick}
+            className="bg-white/70 backdrop-blur-sm rounded-full p-1.5 transition-colors hover:bg-white text-gray-700 hover:text-red-600"
+            aria-label={meal.deleted ? 'Restore' : 'Delete'}
           >
-            {meal.liked ? (
-              <HeartIconSolid className="h-6 w-6 text-red-500" />
+            {meal.deleted ? (
+              <ArrowUturnLeftIcon className="h-6 w-6" />
             ) : (
-              <HeartIconOutline className="h-6 w-6 text-red-500" />
+              <TrashIcon className="h-6 w-6" />
             )}
           </button>
         </div>
-        <div className="absolute top-2 left-2 z-10">
-           <button
-            onClick={handleDeleteClick}
-            className="bg-white/70 backdrop-blur-sm rounded-full p-1.5 transition-colors hover:bg-white text-gray-700 hover:text-red-600"
-            aria-label="Delete"
-          >
-            <TrashIcon className="h-6 w-6" />
-          </button>
-        </div>
-      <div className="border rounded-lg overflow-hidden shadow-lg h-full relative group">
-        <div className="absolute top-2 right-2 z-10">
-          <button
-            onClick={handleLikeClick}
-            className="bg-white/70 backdrop-blur-sm rounded-full p-1.5 transition-colors hover:bg-white"
-            aria-label="Like"
-          >
-            {meal.liked ? (
-              <HeartIconSolid className="h-6 w-6 text-red-500" />
-            ) : (
-              <HeartIconOutline className="h-6 w-6 text-red-500" />
-            )}
-          </button>
-        </div>
-        <div className="absolute top-2 left-2 z-10">
-           <button
-            onClick={handleDeleteClick}
-            className="bg-white/70 backdrop-blur-sm rounded-full p-1.5 transition-colors hover:bg-white text-gray-700 hover:text-red-600"
-            aria-label="Delete"
-          >
-            <TrashIcon className="h-6 w-6" />
-          </button>
-        </div>
+
         <img src={meal.thumbnail} alt={meal.title} className="w-full h-48 object-cover" />
         <div className="p-4">
           <h3 className="font-bold text-lg mb-2">{meal.title}</h3>
