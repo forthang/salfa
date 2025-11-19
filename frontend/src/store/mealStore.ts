@@ -19,11 +19,13 @@ interface MealState {
   loading: boolean;
   filter: MealFilter;
   searchTerm: string;
+  currentPage: number;
   fetchMeals: () => Promise<void>;
   toggleDelete: (id: string) => void;
   toggleLike: (id: string) => void;
   setFilter: (filter: MealFilter) => void;
   setSearchTerm: (term: string) => void;
+  setCurrentPage: (page: number) => void;
   addMeal: (meal: { title: string; description: string; thumbnail: string }) => void;
   updateMeal: (id: string, data: Partial<Omit<Meal, 'id'>>) => void;
 }
@@ -35,6 +37,7 @@ export const useMealStore = create<MealState>()(
       loading: false,
       filter: 'all',
       searchTerm: '',
+      currentPage: 1,
 
       fetchMeals: async () => {
         const existingMeals = get().meals;
@@ -94,8 +97,9 @@ export const useMealStore = create<MealState>()(
           ),
         })),
 
-      setFilter: (filter) => set({ filter }),
-      setSearchTerm: (term) => set({ searchTerm: term }),
+      setFilter: (filter) => set({ filter, currentPage: 1 }),
+      setSearchTerm: (term) => set({ searchTerm: term, currentPage: 1 }),
+      setCurrentPage: (page) => set({ currentPage: page }),
     }),
     {
       name: 'meal-app-storage',

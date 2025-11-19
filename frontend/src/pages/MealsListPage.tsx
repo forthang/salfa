@@ -4,6 +4,8 @@ import { useMealStore } from '../store/mealStore';
 import type { MealFilter } from '../store/mealStore';
 import MealCard from '../components/MealCard';
 
+const MEALS_PER_PAGE = 8;
+
 const MealsListPage = () => {
   const { 
     meals, 
@@ -13,6 +15,8 @@ const MealsListPage = () => {
     setFilter,
     searchTerm,
     setSearchTerm,
+    currentPage,
+    setCurrentPage,
   } = useMealStore();
 
   useEffect(() => {
@@ -41,6 +45,12 @@ const MealsListPage = () => {
         }
       });
   }, [meals, filter, searchTerm]);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredMeals.length / MEALS_PER_PAGE);
+  const startIndex = (currentPage - 1) * MEALS_PER_PAGE;
+  const endIndex = startIndex + MEALS_PER_PAGE;
+  const currentMealsOnPage = filteredMeals.slice(startIndex, endIndex);
 
   if (loading && meals.length === 0) {
     return <div className="text-center p-10">Loading...</div>;
@@ -86,13 +96,36 @@ const MealsListPage = () => {
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredMeals.map((meal) => (
+        {currentMealsOnPage.map((meal) => (
           <MealCard key={meal.id} meal={meal} />
         ))}
       </div>
+
       {filteredMeals.length === 0 && !loading && (
         <div className="text-center p-10 text-gray-500">
           No meals found.
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-8 gap-4">
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-lg font-semibold bg-gray-200 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-lg font-semibold bg-gray-200 disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
