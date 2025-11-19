@@ -25,6 +25,7 @@ interface MealState {
   setFilter: (filter: MealFilter) => void;
   setSearchTerm: (term: string) => void;
   addMeal: (meal: { title: string; description: string; thumbnail: string }) => void;
+  updateMeal: (id: string, data: Partial<Omit<Meal, 'id'>>) => void;
 }
 
 export const useMealStore = create<MealState>()(
@@ -36,20 +37,22 @@ export const useMealStore = create<MealState>()(
       searchTerm: '',
 
       fetchMeals: async () => {
-        const oldMeals = get().meals;
-        const customMeals = oldMeals.filter(m => m.isCustom);
+        const existingMeals = get().meals;
+        const existingMealMap = new Map(existingMeals.map(m => [m.id, m]));
         set({ loading: true });
+
         try {
           const mealsFromAPI = await fetchMealsAPI();
-          const mealMap = new Map(oldMeals.map(m => [m.id, { liked: m.liked, deleted: m.deleted }]));
-          
-          const apiMeals = mealsFromAPI.map(newMeal => ({
-            ...newMeal,
-            liked: mealMap.get(newMeal.id)?.liked || false,
-            deleted: mealMap.get(newMeal.id)?.deleted || false,
-          }));
 
-          set({ meals: [...customMeals, ...apiMeals] });
+          // Add new meals from the API that are not already in our state
+          mealsFromAPI.forEach(apiMeal => {
+            if (!existingMealMap.has(apiMeal.id)) {
+              existingMealMap.set(apiMeal.id, { ...apiMeal, liked: false, deleted: false });
+            }
+          });
+
+          const finalMeals = Array.from(existingMealMap.values());
+          set({ meals: finalMeals });
         } catch (error) {
           console.error("Failed to fetch meals:", error);
         } finally {
@@ -69,6 +72,13 @@ export const useMealStore = create<MealState>()(
         };
         set((state) => ({ meals: [newMeal, ...state.meals] }));
       },
+
+      updateMeal: (id, data) =>
+        set((state) => ({
+          meals: state.meals.map((meal) =>
+            meal.id === id ? { ...meal, ...data } : meal
+          ),
+        })),
 
       toggleDelete: (id) =>
         set((state) => ({
