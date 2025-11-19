@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useMealStore } from '../store/mealStore';
 import type { MealFilter } from '../store/mealStore';
 import MealCard from '../components/MealCard';
@@ -47,7 +48,7 @@ const MealsListPage = () => {
   }> = ({ buttonFilter, text }) => (
     <button
       onClick={() => setFilter(buttonFilter)}
-      className={`px-4 py-2 rounded-lg font-semibold ${filter === buttonFilter ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+      className={`px-4 py-2 rounded-lg font-semibold ${filter === buttonFilter ? 'bg-gray-200 text-gray-800' : 'bg-white'}`}
     >
       {text}
     </button>
@@ -58,9 +59,17 @@ const MealsListPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Meals</h1>
         <div className="flex items-center gap-2">
-          <FilterButton buttonFilter="all" text="All" />
-          <FilterButton buttonFilter="liked" text="Liked" />
-          <FilterButton buttonFilter="deleted" text="Deleted" />
+          <div className="flex items-center p-1 rounded-lg bg-gray-200">
+            <FilterButton buttonFilter="all" text="All" />
+            <FilterButton buttonFilter="liked" text="Liked" />
+            <FilterButton buttonFilter="deleted" text="Deleted" />
+          </div>
+          <Link
+            to="/create-product"
+            className="px-4 py-2 rounded-lg font-semibold bg-blue-500 text-white hover:bg-blue-600"
+          >
+            Create Post
+          </Link>
         </div>
       </div>
       <div className="mb-6">

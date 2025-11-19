@@ -9,6 +9,7 @@ export interface Meal {
   thumbnail: string;
   liked?: boolean;
   deleted?: boolean;
+  isCustom?: boolean;
 }
 
 export type MealFilter = 'all' | 'liked' | 'deleted';
@@ -23,6 +24,7 @@ interface MealState {
   toggleLike: (id: string) => void;
   setFilter: (filter: MealFilter) => void;
   setSearchTerm: (term: string) => void;
+  addMeal: (meal: { title: string; description: string; thumbnail: string }) => void;
 }
 
 export const useMealStore = create<MealState>()(
@@ -35,23 +37,37 @@ export const useMealStore = create<MealState>()(
 
       fetchMeals: async () => {
         const oldMeals = get().meals;
+        const customMeals = oldMeals.filter(m => m.isCustom);
         set({ loading: true });
         try {
           const mealsFromAPI = await fetchMealsAPI();
           const mealMap = new Map(oldMeals.map(m => [m.id, { liked: m.liked, deleted: m.deleted }]));
           
-          const mergedMeals = mealsFromAPI.map(newMeal => ({
+          const apiMeals = mealsFromAPI.map(newMeal => ({
             ...newMeal,
             liked: mealMap.get(newMeal.id)?.liked || false,
             deleted: mealMap.get(newMeal.id)?.deleted || false,
           }));
 
-          set({ meals: mergedMeals });
+          set({ meals: [...customMeals, ...apiMeals] });
         } catch (error) {
           console.error("Failed to fetch meals:", error);
         } finally {
           set({ loading: false });
         }
+      },
+
+      addMeal: (meal) => {
+        const newMeal: Meal = {
+          id: `custom-${Date.now()}`,
+          title: meal.title,
+          description: meal.description,
+          thumbnail: meal.thumbnail,
+          liked: false,
+          deleted: false,
+          isCustom: true,
+        };
+        set((state) => ({ meals: [newMeal, ...state.meals] }));
       },
 
       toggleDelete: (id) =>
