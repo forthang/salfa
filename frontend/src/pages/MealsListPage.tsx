@@ -21,7 +21,11 @@ const MealsListPage = () => {
   const filteredMeals = useMemo(() => {
     return meals
       .filter(meal => {
-        if (searchTerm && !meal.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        
+        if (searchTerm && 
+            !(meal.title.toLowerCase().includes(lowerCaseSearchTerm) ||
+              meal.description.toLowerCase().includes(lowerCaseSearchTerm))) {
           return false;
         }
         
